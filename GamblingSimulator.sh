@@ -47,6 +47,7 @@ function countingWonOrLostDay() {
 }
 #function for checking winning or loosing amount after 20 day
 function checkingWinOrLooseAmountAfter20Day() {
+	gamble
 	if [ $winningAmount -gt $loosingAmount ]
 	then
 		echo "You won by $(($winningAmount-$loosingAmount)) in 20 day"
@@ -56,14 +57,12 @@ function checkingWinOrLooseAmountAfter20Day() {
 	else
 		echo "You loose by $(($loosingAmount-$winningAmount)) in 20 day"
 	fi
-}
+	echo "No of days Won : $wonCount"
+	echo "No of days Lost : $lostCount"
+	echo "Amount Won : $(($wonCount*50)) "
+	echo "Amount Lost : $(($lostCount*50)) "
 
-gamble
-checkingWinOrLooseAmountAfter20Day
-echo "No of days Won : $wonCount"
-echo "No of days Lost : $lostCount"
-echo "Amount Won : $(($wonCount*50)) "
-echo "Amount Lost : $(($lostCount*50)) "
+}
 echo ${!storingLuckyUnLucky[@]}
 echo ${storingLuckyUnLucky[@]}
 
@@ -75,7 +74,26 @@ function checkingLuckyUnluckyDay() {
 	done | sort -k2 $1 | head -1
 }
 
-echo "Luckiest day"
-checkingLuckyUnluckyDay -rn
-echo "Unluckiest day"
-checkingLuckyUnluckyDay -n
+
+while [ $currentAmount -ge 0 ]
+do
+	checkingWinOrLooseAmountAfter20Day
+	echo "Luckiest day"
+	checkingLuckyUnluckyDay -rn
+	echo "Unluckiest day"
+	checkingLuckyUnluckyDay -n
+	if [ ${storingLuckyUnLucky[20]} -ge 0 ]
+	then
+		read -p "Do want to gamble for next month to? (y/n) " answer
+		if [ answer=="y" ]
+		then
+			winningAmount=0
+			loosingAmount=0
+			currentAmount=0
+			wonCount=0
+			lostCount=0
+		else
+			break
+		fi
+	fi
+done
