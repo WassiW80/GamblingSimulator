@@ -1,27 +1,29 @@
-#!/bin/bash -x
+#!/bin/bash 
 echo "Welcome to Gambling Simulator."
 #CONSTANT
-STAKE=100
 BET=1
 WIN_LIMIT=150
 LOOSE_LIMIT=50
 NUMBER_OF_DAYS=20
 #variables
+stake=100
 winningAmount=0
 loosingAmount=0
+currentAmount=0
 wonCount=0
 lostCount=0
+declare -A storingLuckyUnLucky
 #function for gambling
 function gamble() {
-	for((i=0;i<$NUMBER_OF_DAYS;i++))
+	for((i=1;i<=$NUMBER_OF_DAYS;i++))
 	do
-		while [ $STAKE -lt $WIN_LIMIT ] && [ $STAKE -gt $LOOSE_LIMIT ]
+		while [ $stake -lt $WIN_LIMIT ] && [ $stake -gt $LOOSE_LIMIT ]
 		do
 			if [ $((RANDOM%2)) -eq 0 ]
 			then
-				STAKE=$(($STAKE-$BET))
+				stake=$(($stake-$BET))
 			else
-				STAKE=$(($STAKE+$BET))
+				stake=$(($stake+$BET))
 			fi
 		done
 		countingWonOrLostDay
@@ -29,16 +31,19 @@ function gamble() {
 }
 #function for Counting won and or lost days
 function countingWonOrLostDay() {
-	if [ $STAKE -ge $WIN_LIMIT ]
+	if [ $stake -ge $WIN_LIMIT ]
 	then
 		winningAmount=$(($winningAmount+50))
-		STAKE=100
+		currentAmount=$(($currentAmount+50))
+		stake=100
 		(( wonCount++ ))
 	else
 		loosingAmount=$(($loosingAmount+50))
-		STAKE=100
+		currentAmount=$(($currentAmount-50))
+		stake=100
 		(( lostCount++ ))
 	fi
+	storingLuckyUnLucky[$i]=$currentAmount
 }
 #function for checking winning or loosing amount after 20 day
 function checkingWinOrLooseAmountAfter20Day() {
@@ -59,3 +64,18 @@ echo "No of days Won : $wonCount"
 echo "No of days Lost : $lostCount"
 echo "Amount Won : $(($wonCount*50)) "
 echo "Amount Lost : $(($lostCount*50)) "
+echo ${!storingLuckyUnLucky[@]}
+echo ${storingLuckyUnLucky[@]}
+
+
+function checkingLuckyUnluckyDay() {
+	for i in ${!storingLuckyUnLucky[@]}
+	do
+		echo "$i ${storingLuckyUnLucky[$i]}"
+	done | sort -k2 $1 | head -1
+}
+
+echo "Luckiest day"
+checkingLuckyUnluckyDay -rn
+echo "Unluckiest day"
+checkingLuckyUnluckyDay -n
