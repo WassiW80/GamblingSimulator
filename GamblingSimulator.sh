@@ -1,40 +1,61 @@
 #!/bin/bash -x
 echo "Welcome to Gambling Simulator."
-stake=100
-bet=1
+#CONSTANT
+STAKE=100
+BET=1
+WIN_LIMIT=150
+LOOSE_LIMIT=50
+NUMBER_OF_DAYS=20
+#variables
 winningAmount=0
 loosingAmount=0
-for((i=0;i<20;i++))
-do
-	while [ $stake -lt 150 ] && [ $stake -gt 50 ]
+wonCount=0
+lostCount=0
+#function for gambling
+function gamble() {
+	for((i=0;i<$NUMBER_OF_DAYS;i++))
 	do
-		if [ $((RANDOM%2)) -eq 0 ]
-		then
-			stake=$(($stake-$bet))
-		else
-			stake=$(($stake+$bet))
-		fi
+		while [ $STAKE -lt $WIN_LIMIT ] && [ $STAKE -gt $LOOSE_LIMIT ]
+		do
+			if [ $((RANDOM%2)) -eq 0 ]
+			then
+				STAKE=$(($STAKE-$BET))
+			else
+				STAKE=$(($STAKE+$BET))
+			fi
+		done
+		countingWonOrLostDay
 	done
-	if [ $stake -ge 150 ]
+}
+#function for Counting won and or lost days
+function countingWonOrLostDay() {
+	if [ $STAKE -ge $WIN_LIMIT ]
 	then
 		winningAmount=$(($winningAmount+50))
-		stake=100
+		STAKE=100
+		(( wonCount++ ))
 	else
 		loosingAmount=$(($loosingAmount+50))
-		stake=100
+		STAKE=100
+		(( lostCount++ ))
 	fi
-done
+}
+#function for checking winning or loosing amount after 20 day
+function checkingWinOrLooseAmountAfter20Day() {
+	if [ $winningAmount -gt $loosingAmount ]
+	then
+		echo "You won by $(($winningAmount-$loosingAmount)) in 20 day"
+	elif [ $winningAmount -eq $loosingAmount ]
+	then
+		echo "You neither won nor loose"
+	else
+		echo "You loose by $(($loosingAmount-$winningAmount)) in 20 day"
+	fi
+}
 
-if [ $winningAmount -gt $loosingAmount ]
-then
-	echo "You won by $(($winningAmount-$loosingAmount)) in 20 day"
-elif [ $winningAmount -eq $loosingAmount ]
-then
-	echo "You neither won nor loose"
-else
-	echo "You loose by $(($loosingAmount-$winningAmount)) in 20 day"
-fi
-
-
-echo $winningAmount
-echo $loosingAmount
+gamble
+checkingWinOrLooseAmountAfter20Day
+echo "No of days Won : $wonCount"
+echo "No of days Lost : $lostCount"
+echo "Amount Won : $(($wonCount*50)) "
+echo "Amount Lost : $(($lostCount*50)) "
